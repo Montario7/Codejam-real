@@ -4,32 +4,29 @@ using UnityEngine;
 
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : BaseManager
 {
-    public float moveSpeed = 5f; // Speed of the player movement
+    public float moveSpeed = 5f;
     private Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        Initialize(); // Call the base class initialization
     }
 
     void Update()
     {
-        // Check if the device has an accelerometer
         if (SystemInfo.supportsAccelerometer)
         {
-            // Use accelerometer input for movement
             float moveHorizontal = Input.acceleration.x;
             float moveVertical = Input.acceleration.y;
 
             Vector2 movement = new Vector2(moveHorizontal, moveVertical);
             rb.velocity = movement * moveSpeed;
         }
-        // Check if the device has a gyroscope (if accelerometer is not available)
         else if (SystemInfo.supportsGyroscope)
         {
-            // Use gyroscope input for movement
             float moveHorizontal = Input.gyro.rotationRateUnbiased.x;
             float moveVertical = Input.gyro.rotationRateUnbiased.y;
 
@@ -38,8 +35,13 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No accelerometer or gyroscope found.");
+            LogMessage("No accelerometer or gyroscope found."); // Use the base class method
         }
     }
-}
 
+    public override void Initialize()
+    {
+        base.Initialize();
+        Debug.Log("PlayerController initialized.");
+    }
+}

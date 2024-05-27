@@ -2,22 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundManager : MonoBehaviour
+using UnityEngine;
+
+public class SoundManager : BaseManager
 {
     public static SoundManager instance;
 
     private AudioSource audioSource;
 
-    // AudioClip to be played
     public AudioClip audioClip;
 
     void Awake()
     {
-        // Ensure only one instance of SoundManager exists
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            Initialize(); // Call the base class initialization
         }
         else
         {
@@ -27,35 +28,33 @@ public class SoundManager : MonoBehaviour
 
     void Start()
     {
-        // Get the AudioSource component if not already assigned
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
 
-            // Check if an audio clip is assigned
-            if (audioClip != null)
-            {
-                PlaySound();
-            }
-            else
-            {
-                Debug.LogWarning("No audio clip assigned.");
-            }
+        if (audioClip != null)
+        {
+            PlaySound();
+        }
+        else
+        {
+            LogMessage("No audio clip assigned."); // Use the base class method
         }
     }
 
-    // Play the assigned audio clip
+    public override void Initialize()
+    {
+        base.Initialize();
+        Debug.Log("SoundManager initialized.");
+    }
+
     public void PlaySound()
     {
-        // Check if the audioSource is assigned
         if (audioSource != null && audioClip != null)
         {
             audioSource.PlayOneShot(audioClip);
         }
         else
         {
-            Debug.LogWarning("Audio source or audio clip is null.");
+            LogMessage("Audio source or audio clip is null."); // Use the base class method
         }
     }
 }
-
