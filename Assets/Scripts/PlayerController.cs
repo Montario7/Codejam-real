@@ -2,43 +2,53 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using UnityEngine;
-
-public class PlayerController : MonoBehaviour
+public class PlayerController : ControllerBase
 {
     public float moveSpeed = 5f; // Speed of the player movement
     private Rigidbody2D rb;
+    private bool useAccelerometer;
+    private bool useGyroscope;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Check once if the device has an accelerometer or gyroscope
+        useAccelerometer = SystemInfo.supportsAccelerometer;
+        useGyroscope = SystemInfo.supportsGyroscope;
+
+        if (!useAccelerometer && !useGyroscope)
+        {
+            Debug.LogError("No accelerometer or gyroscope found.");
+        }
     }
 
     void Update()
     {
-        // Check if the device has an accelerometer
-        if (SystemInfo.supportsAccelerometer)
+        Vector2 movement = Vector2.zero;
+
+        if (useAccelerometer)
         {
             // Use accelerometer input for movement
             float moveHorizontal = Input.acceleration.x;
             float moveVertical = Input.acceleration.y;
-
-            Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-            rb.velocity = movement * moveSpeed;
+            movement += new Vector2(moveHorizontal, moveVertical); // Combine if both are used
         }
-        // Check if the device has a gyroscope (if accelerometer is not available)
-        else if (SystemInfo.supportsGyroscope)
+
+        if (useGyroscope)
         {
             // Use gyroscope input for movement
             float moveHorizontal = Input.gyro.rotationRateUnbiased.x;
             float moveVertical = Input.gyro.rotationRateUnbiased.y;
-
-            Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-            rb.velocity = movement * moveSpeed;
+            movement += new Vector2(moveHorizontal, moveVertical); // Combine if both are used
         }
-        else
+
+        if (movement != Vector2.zero)
         {
-            Debug.LogError("No accelerometer or gyroscope found.");
+            rb.velocity = movement * moveSpeed;
+
+            // Play sound when player moves
+            SoundManager.instance.PlaySound();
         }
     }
 }
